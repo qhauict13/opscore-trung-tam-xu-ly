@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPSCORE · Đối soát Shopee + Trung tâm xử lý</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16202e; --ink-2:#4a5a6e; --ink-3:#8494a6;
+  --line:#e2e7ee; --line-2:#cfd7e2; --bg:#f3f5f8; --card:#fff;
+  --neg:#b3261e; --neg-bg:#fdeceb; --pos:#1b6b47; --pos-bg:#e8f5ee;
+  --wait:#8a5a08; --wait-bg:#fdf3e0;
+  --new:#5b3fd6; --new-bg:#f0edfd; --new-line:#c4b8f5;
+  --nav:#101827;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.5}
+.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.app{display:flex;min-height:100vh}
+
+/* sidebar */
+.side{width:218px;flex:0 0 218px;background:var(--nav);color:#c8d2e0;padding:16px 0 32px}
+.side .logo{padding:0 16px 18px;border-bottom:1px solid #1f2a3b}
+.side .logo b{display:block;color:#fff;font-size:15px;font-weight:600;letter-spacing:.03em}
+.side .logo span{font-size:10.5px;color:#7d8da3}
+.grp{margin-top:18px}
+.grp>p{font-size:10px;color:#6b7b93;padding:0 16px 7px;letter-spacing:.06em}
+.side a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 16px;color:#c8d2e0;text-decoration:none;font-size:12.5px;cursor:pointer;border-left:2px solid transparent}
+.side a:hover{background:#18222f;color:#fff}
+.side a.on{background:#1c2736;color:#fff;border-left-color:#7c66e8}
+.side .bdg{font-size:10px;background:#31405a;color:#dbe3ee;border-radius:10px;padding:1px 7px}
+.side .bdg.hot{background:#5c1f1c;color:#ffb9b3}
+.grp.new-grp{position:relative}
+
+/* main */
+.main{flex:1;min-width:0;padding:18px 22px 60px}
+.bar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+.bar h1{font-size:18px;font-weight:600}
+.bar p{font-size:12px;color:var(--ink-3);margin-top:3px;max-width:640px}
+.tools{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.btn{font:inherit;font-size:12px;padding:6px 12px;border:1px solid var(--line-2);background:var(--card);border-radius:6px;color:var(--ink);cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.new{border-color:var(--new-line);color:var(--new);background:var(--new-bg)}
+.marker{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-2);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.marker input{accent-color:var(--new)}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.kpi .k{font-size:11px;color:var(--ink-3);margin-bottom:6px;white-space:nowrap}
+.kpi .v{font-size:18px;font-weight:500}
+.kpi .s{font-size:11px;color:var(--ink-3);margin-top:3px}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.panel-head h2{font-size:13.5px;font-weight:600}
+.filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{font-size:11.5px;padding:4px 10px;border:1px solid var(--line-2);border-radius:20px;background:#fff;cursor:pointer;color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+select{font:inherit;font-size:11.5px;padding:4px 8px;border:1px solid var(--line-2);border-radius:6px;background:#fff;color:var(--ink-2)}
+
+table{width:100%;border-collapse:collapse}
+th{font-size:10.5px;font-weight:500;color:var(--ink-3);text-align:right;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,th.l{text-align:left}
+td{padding:10px;border-bottom:1px solid #f0f3f7;text-align:right;white-space:nowrap}
+td:first-child,td.l{text-align:left}
+tbody tr:hover{background:#fafbfd}
+tbody tr.clk{cursor:pointer}
+.code{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-2)}
+.neg{color:var(--neg)} .pos{color:var(--pos)}
+.dot{display:inline-block;font-size:11.5px;padding:3px 8px;border-radius:20px}
+.d-neg{background:var(--neg-bg);color:var(--neg)} .d-pos{background:var(--pos-bg);color:var(--pos)}
+.d-wait{background:var(--wait-bg);color:var(--wait)} .d-mute{background:#eef1f5;color:var(--ink-2)}
+.d-new{background:var(--new-bg);color:var(--new)}
+.tag-case{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--new);background:var(--new-bg);border:1px solid var(--new-line);padding:2px 7px;border-radius:5px;cursor:pointer}
+.tag-none{color:var(--ink-3)}
+.cname{font-size:13px;font-weight:500;margin-bottom:2px}
+.cmeta{font-size:11px;color:var(--ink-3)}
+
+.selbar{display:none;align-items:center;justify-content:space-between;gap:16px;padding:10px 14px;background:var(--new-bg);border-bottom:1px solid var(--new-line)}
+.selbar.on{display:flex}
+.selbar .t{font-size:12.5px;color:#3b2aa0}
+
+/* cause cards */
+.causes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.cause{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;cursor:pointer}
+.cause:hover{border-color:var(--line-2)}
+.cause h3{font-size:13.5px;font-weight:500;margin-bottom:8px}
+.cause .big{font-size:20px;font-weight:500}
+.cause .sub{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+.track{height:6px;background:#eef1f5;border-radius:3px;overflow:hidden;margin:12px 0 8px}
+.track i{display:block;height:100%}
+.split{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-2)}
+
+/* drawer */
+.scrim{display:none;position:fixed;inset:0;background:rgba(18,26,38,.32);z-index:5}
+.scrim.on{display:block}
+.drawer{position:fixed;top:0;right:0;height:100%;width:520px;max-width:94vw;background:var(--card);border-left:1px solid var(--line-2);overflow-y:auto;transform:translateX(100%);transition:transform .18s ease;z-index:6}
+.drawer.on{transform:none}
+.dw-head{padding:16px 18px;border-bottom:1px solid var(--line)}
+.dw-head .x{float:right;border:0;background:transparent;font-size:19px;color:var(--ink-3);cursor:pointer;line-height:1}
+.dw-head h3{font-size:15px;font-weight:600;margin:6px 24px 6px 0}
+.dw-sec{padding:16px 18px;border-bottom:1px solid var(--line)}
+.dw-sec h4{font-size:10.5px;color:var(--ink-3);font-weight:500;margin-bottom:10px;letter-spacing:.04em}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cmp div{background:#f7f9fc;border:1px solid var(--line);border-radius:7px;padding:10px 12px}
+.cmp .lab{font-size:11px;color:var(--ink-3);margin-bottom:4px}
+.cmp .val{font-size:15px;font-weight:500}
+.bar2{height:8px;background:#e8edf4;border-radius:4px;overflow:hidden;margin:4px 0 6px}
+.bar2 i{display:block;height:100%;background:var(--neg)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed #eaeef4;font-size:12.5px}
+.kv:last-child{border:0}
+.kv span:first-child{color:var(--ink-3)}
+.tl{padding-left:16px}
+.tl li{list-style:none;position:relative;padding-bottom:12px;font-size:12.5px}
+.tl li:before{content:"";position:absolute;left:-16px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+.tl li:after{content:"";position:absolute;left:-13px;top:12px;bottom:0;width:1px;background:var(--line-2)}
+.tl li:last-child:after{display:none}
+.tl .when{color:var(--ink-3);font-size:11.5px}
+.dw-act{padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.dw-act .btn{text-align:left;padding:9px 12px;font-size:12.5px}
+
+body.mark .is-new{outline:1.5px dashed var(--new-line);outline-offset:3px;border-radius:6px;position:relative}
+body.mark .is-new:after{content:attr(data-new);position:absolute;top:-9px;left:10px;background:var(--new);color:#fff;font-size:9.5px;padding:1px 6px;border-radius:4px;white-space:nowrap;z-index:2}
+body.mark .side .is-new:after{left:14px}
+.note{font-size:11.5px;color:var(--ink-3);margin-top:6px}
+@media(max-width:980px){.side{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <nav class="side">
+    <div class="logo"><b>OPSCORE</b><span>Kiểm soát vận hành</span></div>
+
+    <div class="grp">
+      <p>ĐỐI SOÁT</p>
+      <a data-v="dash">Bảng điều khiển</a>
+      <a data-v="orders" class="on">Đơn hàng</a>
+      <a data-v="orders">Cần kiểm tra <span class="bdg hot">18</span></a>
+      <a data-v="orders">Hoàn hàng</a>
+      <a data-v="orders">Chi phí</a>
+    </div>
+
+    <div class="grp new-grp is-new" data-new="menu thêm mới">
+      <p>TRUNG TÂM XỬ LÝ</p>
+      <a data-v="cases">Vụ việc <span class="bdg hot">3</span></a>
+      <a data-v="causes">Theo nguyên nhân</a>
+      <a data-v="recovery">Tiền thu hồi</a>
+    </div>
+
+    <div class="grp">
+      <p>KẾT NỐI</p>
+      <a data-v="orders">Shopee</a>
+      <a data-v="orders">WMS / ERP</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="bar">
+      <div>
+        <h1 id="h1">Danh sách đơn hàng</h1>
+        <p id="sub">Kỳ 16/08 – 29/08. Dữ liệu minh họa, không kết nối dữ liệu thật.</p>
+      </div>
+      <div class="tools">
+        <label class="marker"><input type="checkbox" id="mk" checked> Đánh dấu phần thêm</label>
+        <button class="btn">Xuất CSV</button>
+        <button class="btn dark">Cập nhật dữ liệu</button>
+      </div>
+    </div>
+    <div id="body"></div>
+  </main>
+</div>
+
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer"></aside>
+
+<script>
+const f = n => n.toLocaleString('vi-VN');
+
+const CAUSES = [
+  {id:'G1', name:'Phí và hoa hồng sàn', cases:2, orders:396, amt:4460000, rec:1980000, color:'#b3261e'},
+  {id:'G2', name:'Hàng hoàn và tồn kho', cases:1, orders:46, amt:8940000, rec:0, color:'#8a5a08'},
+  {id:'G3', name:'Dòng tiền giải ngân', cases:1, orders:31, amt:5210000, rec:0, color:'#5b3fd6'},
+  {id:'G4', name:'Chưa phân loại', cases:0, orders:18, amt:1120000, rec:0, color:'#8494a6'}
+];
+
+const CASES = [
+  { id:'VV-001', g:'G1', name:'Phí sàn trừ vượt tỷ lệ hợp đồng', src:'Hợp đồng đại lý ↔ Đối soát Shopee',
+    orders:284, amt:2480000, who:'Kế toán công nợ', st:'Chờ sàn phản hồi', stc:'d-wait', due:'Hạn khiếu nại còn 6 ngày',
+    a:{l:'App tính theo hợp đồng',v:684120000}, b:{l:'Shopee thực trừ',v:686600000},
+    why:'Phí voucher xtra và phí affiliate bị gộp vào dòng hoa hồng, đẩy tỷ lệ hiệu dụng vượt mức đã ký 1,85 điểm phần trăm.',
+    ev:[['Phạm vi','284 đơn 16/08 – 29/08'],['Lệch lớn nhất','19.307 đ · DEMO-ATT-003'],['Tỷ lệ đã ký','11,50%'],['Tỷ lệ thực tế','13,35%']],
+    tl:[['Hệ thống phát hiện trong phiên đối soát','29/08 06:12'],['Giao cho Kế toán công nợ','29/08 08:40'],['Xuất CSV gửi KAM Shopee','29/08 09:15'],['Đang chờ sàn phản hồi','từ 29/08']] },
+  { id:'VV-002', g:'G2', name:'Hàng hoàn trên sàn nhưng chưa nhập kho quá 7 ngày', src:'Trạng thái hoàn trên sàn ↔ Phiếu nhập hoàn tại kho',
+    orders:46, amt:8940000, who:'Quản lý kho', st:'Đang mở', stc:'d-neg', due:'Quá hạn xa nhất 12 ngày',
+    a:{l:'Sàn ghi đã hoàn',v:8940000}, b:{l:'Kho đã nhập',v:0},
+    why:'Shipper bấm hoàn thành trước khi giao hàng về kho, nhân viên kho nhận hàng nhưng không tất trạng thái trên hệ thống.',
+    ev:[['Phạm vi','46 đơn hoàn từ 14/08'],['Giá vốn ước tính','8.940.000 đ'],['Kho liên quan','Kho tổng, kho Bình Tân'],['Chứng từ','Không có phiếu nhập hoàn']],
+    tl:[['Hệ thống phát hiện trong phiên đối soát','29/08 06:12'],['Giao cho Quản lý kho','29/08 07:05']] },
+  { id:'VV-003', g:'G3', name:'Tiền giải ngân chưa về quá 7 ngày', src:'Đơn đã giao ↔ Ví Shopee',
+    orders:31, amt:5210000, who:'Kế toán công nợ', st:'Đang mở', stc:'d-neg', due:'Hạn tra soát còn 4 ngày',
+    a:{l:'Phải thu cuối',v:5210000}, b:{l:'Đã vào ví',v:0},
+    why:'Đơn đã giao thành công nhưng chưa có dòng giải ngân tương ứng, chưa rõ do kỳ quyết toán hay do đơn bị giữ.',
+    ev:[['Phạm vi','31 đơn giao 12/08 – 20/08'],['Chờ lâu nhất','17 ngày'],['Kỳ quyết toán gần nhất','29/08']],
+    tl:[['Hệ thống phát hiện trong phiên đối soát','29/08 06:12']] },
+  { id:'VV-000', g:'G1', name:'Phí vận chuyển trừ sai bậc kỳ 01/08', src:'Bảng giá vận chuyển ↔ Đối soát Shopee',
+    orders:112, amt:1980000, who:'Kế toán công nợ', st:'Đã thu hồi', stc:'d-pos', due:'Đóng ngày 26/08', closed:true,
+    a:{l:'Sàn trừ ban đầu',v:14280000}, b:{l:'Sàn hoàn lại',v:1980000},
+    why:'Áp sai bậc trọng lượng cho 112 đơn. Sàn xác nhận và hoàn vào ví ngày 26/08.',
+    ev:[['Phạm vi','112 đơn kỳ 01/08 – 15/08'],['Thu hồi','1.980.000 đ'],['Thời gian xử lý','9 ngày']],
+    tl:[['Hệ thống phát hiện','17/08 06:10'],['Gửi hồ sơ cho KAM','17/08 14:20'],['Sàn xác nhận sai bậc','24/08'],['Tiền hoàn vào ví, đóng vụ việc','26/08']] }
+];
+
+const ORDERS = [
+  ['DEMO-ATT-001',199000,50000,55310,1,'Cần kiểm tra','d-neg','VV-001'],
+  ['DEMO-ATT-002',217000,57505,60205,2,'Cần kiểm tra','d-neg','VV-001'],
+  ['DEMO-ATT-003',419000,121091,140398,3,'Cần kiểm tra','d-neg','VV-001'],
+  ['DEMO-ATT-004',369000,106641,119141,4,'Cần kiểm tra','d-neg','VV-001'],
+  ['DEMO-ATT-005',259000,81067,85057,5,'Cần kiểm tra','d-neg','VV-001'],
+  ['DEMO-RET-011',540000,148000,148000,9,'Đang hoàn trả','d-wait','VV-002'],
+  ['DEMO-RET-012',312000,86400,86400,11,'Đang hoàn trả','d-wait','VV-002'],
+  ['DEMO-WAI-021',228000,62700,62700,14,'Chờ giải ngân','d-wait','VV-003'],
+  ['DEMO-WAI-022',186000,51150,51150,17,'Chờ giải ngân','d-wait','VV-003'],
+  ['DEMO-ATT-031',298000,83440,91120,2,'Cần kiểm tra','d-neg',null],
+  ['DEMO-ATT-032',164000,45920,49180,3,'Cần kiểm tra','d-neg',null],
+  ['DEMO-ATT-033',432000,120960,131400,4,'Cần kiểm tra','d-neg',null]
+];
+
+const PERIODS = [
+  ['16/07 – 31/07',11,26800000,19200000,9],
+  ['01/08 – 15/08',9,21400000,12600000,7],
+  ['16/08 – 29/08',4,18630000,1980000,null]
+];
+
+function orderRow(o, embedded){
+  const [ma,dt,appFee,sanFee,wait,st,stc,vv]=o;
+  const phaiThu=dt-appFee, veVi=dt-sanFee, lech=veVi-phaiThu, cp=Math.round(dt*0.58);
+  return `<tr>
+    <td>${embedded?'':`<input type="checkbox" class="sel" data-l="${lech}" onchange="onSel()">`}</td>
+    <td class="l"><span class="code">${ma}</span></td>
+    <td class="num">${f(dt)} đ</td><td class="num">${f(cp)} đ</td>
+    <td class="num">${f(appFee)} đ</td><td class="num">${f(sanFee)} đ</td>
+    <td class="num">${f(phaiThu)} đ</td><td class="num">${veVi?f(veVi)+' đ':'—'}</td>
+    <td class="num ${lech<0?'neg':''}">${lech?f(lech)+' đ':'—'}</td>
+    <td class="num">${wait} ngày</td>
+    <td class="l"><span class="dot ${stc}">${st}</span></td>
+    <td class="l">${vv?`<span class="tag-case" onclick="event.stopPropagation();openCase('${vv}')">${vv}</span>`:'<span class="tag-none">chưa gom</span>'}</td>
+  </tr>`;
+}
+
+const VIEWS = {
+
+orders: () => `
+  <div class="kpis">
+    ${kpi('Doanh thu','2.184.000.000','8.412 đơn')}
+    ${kpi('Chi phí','612.400.000','28,0% doanh thu')}
+    ${kpi('Doanh thu thực nhận','1.571.600.000','sau điều chỉnh')}
+    ${kpi('Tiền ròng trong ví','1.554.500.000','đã giải ngân')}
+    ${kpi('Đang đòi','16.630.000','3 vụ việc · 361 đơn','neg','thêm')}
+    ${kpi('Đã thu hồi trong kỳ','1.980.000','1 vụ việc đã đóng','pos','thêm')}
+  </div>
+  <section class="panel">
+    <div class="panel-head"><h2>Danh sách đơn hàng</h2>
+      <div class="filters">
+        <button class="chip" aria-pressed="false">Tất cả</button>
+        <button class="chip" aria-pressed="false">Đã khớp</button>
+        <button class="chip" aria-pressed="false">Chờ giải ngân</button>
+        <button class="chip" aria-pressed="false">Đang hoàn trả</button>
+        <button class="chip" aria-pressed="true">Cần kiểm tra</button>
+      </div>
+    </div>
+    <div class="selbar" id="selbar">
+      <div class="t"><b id="selcount">0</b> đơn đang chọn · tổng lệch <b class="num" id="selsum">0</b> đ</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="clearSel()">Bỏ chọn</button>
+        <button class="btn new" onclick="alert('Mở hộp thoại: đặt tên vụ việc, chọn nhóm nguyên nhân, giao người phụ trách, đặt hạn.')">Gom thành vụ việc</button>
+      </div>
+    </div>
+    <table><thead><tr>
+      <th style="width:28px"></th><th class="l">Mã đơn</th><th>Doanh thu</th><th>Chi phí</th>
+      <th>App tính ban đầu</th><th>Shopee tính ban đầu</th><th>Phải thu cuối</th>
+      <th>Tiền ròng trong ví</th><th>Lệch</th><th>Chờ</th><th class="l">Đối soát</th>
+      <th class="l is-new" data-new="thêm 1 cột">Vụ việc</th>
+    </tr></thead><tbody>${ORDERS.map(o=>orderRow(o,false)).join('')}</tbody></table>
+  </section>`,
+
+cases: () => `
+  <div class="kpis">
+    ${kpi('Đang đòi','16.630.000','3 vụ việc đang mở','neg')}
+    ${kpi('Đã thu hồi trong kỳ','1.980.000','1 vụ việc đã đóng','pos')}
+    ${kpi('Sắp quá hạn','2 vụ việc','gần nhất còn 4 ngày')}
+    ${kpi('Chưa gom','18 đơn','1.120.000 đ chưa vào vụ việc')}
+  </div>
+  <section class="panel">
+    <div class="panel-head"><h2>Vụ việc</h2>
+      <div class="filters">
+        <select><option>Mọi trạng thái</option><option>Đang mở</option><option>Chờ sàn phản hồi</option><option>Đã đóng</option></select>
+        <select><option>Mọi nguyên nhân</option>${CAUSES.map(c=>`<option>${c.name}</option>`).join('')}</select>
+        <select><option>Mọi người phụ trách</option><option>Kế toán công nợ</option><option>Quản lý kho</option></select>
+        <select><option>Sắp theo giá trị</option><option>Sắp theo hạn</option><option>Sắp theo số đơn</option></select>
+      </div>
+    </div>
+    <table><thead><tr>
+      <th class="l">Nội dung sai lệch</th><th class="l">Nhóm nguyên nhân</th><th>Số đơn</th>
+      <th>Giá trị</th><th class="l">Người phụ trách</th><th class="l">Hạn</th><th class="l">Trạng thái</th>
+    </tr></thead><tbody>
+    ${CASES.map(c=>`<tr class="clk" onclick="openCase('${c.id}')">
+      <td class="l"><div class="cname">${c.name}</div><div class="cmeta"><span class="code">${c.id}</span> · ${c.src}</div></td>
+      <td class="l">${CAUSES.find(g=>g.id===c.g).name}</td>
+      <td class="num">${c.orders}</td>
+      <td class="num ${c.closed?'pos':'neg'}">${f(c.amt)} đ</td>
+      <td class="l">${c.who}</td>
+      <td class="l"><span class="dot d-mute">${c.due}</span></td>
+      <td class="l"><span class="dot ${c.stc}">${c.st}</span></td>
+    </tr>`).join('')}
+    </tbody></table>
+  </section>
+  <p class="note">Bấm một dòng để mở hồ sơ. Danh sách đơn bên trong hồ sơ là đúng bảng ở màn Đơn hàng, chỉ lọc sẵn theo vụ việc.</p>`,
+
+causes: () => `
+  <div class="causes">
+    ${CAUSES.map(c=>{
+      const pct = c.amt? Math.round(c.rec/(c.amt+c.rec)*100):0;
+      return `<div class="cause" onclick="go('cases')">
+        <h3>${c.name}</h3>
+        <div class="big num neg">${f(c.amt)} đ</div>
+        <div class="sub">${c.orders} đơn${c.cases?` · ${c.cases} vụ việc`:' · chưa gom thành vụ việc'}</div>
+        <div class="track"><i style="width:${pct||3}%;background:${c.color}"></i></div>
+        <div class="split"><span>Đã thu hồi ${f(c.rec)} đ</span><span>${pct}%</span></div>
+      </div>`}).join('')}
+  </div>
+  <section class="panel" style="margin-top:16px">
+    <div class="panel-head"><h2>Ảnh hưởng theo nguyên nhân</h2>
+      <div class="filters"><select><option>Kỳ 16/08 – 29/08</option><option>3 kỳ gần nhất</option></select></div>
+    </div>
+    <table><thead><tr>
+      <th class="l">Nhóm nguyên nhân</th><th>Vụ việc</th><th>Đơn ảnh hưởng</th>
+      <th>Giá trị treo</th><th>Đã thu hồi</th><th>Tỷ trọng</th>
+    </tr></thead><tbody>
+    ${CAUSES.map(c=>{
+      const tot = CAUSES.reduce((a,b)=>a+b.amt,0);
+      return `<tr><td class="l">${c.name}</td><td class="num">${c.cases||'—'}</td>
+      <td class="num">${c.orders}</td><td class="num neg">${f(c.amt)} đ</td>
+      <td class="num ${c.rec?'pos':''}">${c.rec?f(c.rec)+' đ':'—'}</td>
+      <td class="num">${Math.round(c.amt/tot*100)}%</td></tr>`}).join('')}
+    </tbody></table>
+  </section>`,
+
+recovery: () => `
+  <div class="kpis">
+    ${kpi('Phát hiện, 3 kỳ','66.830.000','24 vụ việc','neg')}
+    ${kpi('Đã thu hồi, 3 kỳ','33.780.000','16 vụ việc đã đóng','pos')}
+    ${kpi('Tỷ lệ thu hồi','50,5%','trên giá trị phát hiện')}
+    ${kpi('Thời gian xử lý trung bình','8 ngày','từ phát hiện đến đóng')}
+  </div>
+  <section class="panel">
+    <div class="panel-head"><h2>Thu hồi theo kỳ đối soát</h2></div>
+    <table><thead><tr>
+      <th class="l">Kỳ</th><th>Vụ việc</th><th>Giá trị phát hiện</th>
+      <th>Đã thu hồi</th><th>Tỷ lệ</th><th>Xử lý trung bình</th>
+    </tr></thead><tbody>
+    ${PERIODS.map(p=>`<tr>
+      <td class="l">${p[0]}</td><td class="num">${p[1]}</td>
+      <td class="num neg">${f(p[2])} đ</td><td class="num pos">${f(p[3])} đ</td>
+      <td class="num">${Math.round(p[3]/p[2]*100)}%</td>
+      <td class="num">${p[4]?p[4]+' ngày':'đang chạy'}</td>
+    </tr>`).join('')}
+    </tbody></table>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Vụ việc đã đóng</h2></div>
+    <table><thead><tr><th class="l">Nội dung</th><th>Đơn</th><th>Phát hiện</th><th>Thu hồi</th><th class="l">Kết quả</th></tr></thead>
+    <tbody>${CASES.filter(c=>c.closed).map(c=>`<tr class="clk" onclick="openCase('${c.id}')">
+      <td class="l"><div class="cname">${c.name}</div><div class="cmeta"><span class="code">${c.id}</span></div></td>
+      <td class="num">${c.orders}</td><td class="num">${f(c.a.v-c.b.v+c.amt)} đ</td>
+      <td class="num pos">${f(c.amt)} đ</td><td class="l"><span class="dot d-pos">Sàn chấp nhận toàn bộ</span></td></tr>`).join('')}
+    </tbody></table>
+  </section>
+  <p class="note">Đây là màn hình để trả lời câu hỏi kỳ review: kỳ vừa rồi giữ lại được bao nhiêu tiền. Bảng theo đơn không sinh ra được con số này.</p>`,
+
+dash: () => `
+  <div class="kpis">
+    ${kpi('Doanh thu','2.184.000.000','8.412 đơn')}
+    ${kpi('Doanh thu thực nhận','1.571.600.000','sau điều chỉnh')}
+    ${kpi('Tiền ròng trong ví','1.554.500.000','đã giải ngân')}
+    ${kpi('Đang đòi','16.630.000','3 vụ việc','neg','thêm')}
+    ${kpi('Đã thu hồi trong kỳ','1.980.000','1 vụ việc','pos','thêm')}
+  </div>
+  <section class="panel">
+    <div class="panel-head"><h2>Cần xử lý trước</h2><div class="filters"><button class="btn" onclick="go('cases')">Xem tất cả vụ việc</button></div></div>
+    <table><tbody>
+    ${CASES.filter(c=>!c.closed).map(c=>`<tr class="clk" onclick="openCase('${c.id}')">
+      <td class="l"><div class="cname">${c.name}</div><div class="cmeta"><span class="code">${c.id}</span> · ${c.due}</div></td>
+      <td class="num neg">${f(c.amt)} đ</td><td class="l" style="width:150px"><span class="dot ${c.stc}">${c.st}</span></td></tr>`).join('')}
+    </tbody></table>
+  </section>`
+};
+
+const TITLES = {
+  orders:['Danh sách đơn hàng','Kỳ 16/08 – 29/08. Đối soát khớp số theo từng đơn.'],
+  cases:['Vụ việc','Mỗi dòng là một sai lệch đã quy ra tiền, có người phụ trách và hạn xử lý. Gom từ các đơn ở màn Đơn hàng.'],
+  causes:['Theo nguyên nhân','Một loại sai lệch ảnh hưởng bao nhiêu đơn và mất bao nhiêu tiền.'],
+  recovery:['Tiền thu hồi','Phát hiện bao nhiêu, đòi lại được bao nhiêu, mất bao lâu.'],
+  dash:['Bảng điều khiển','Kỳ 16/08 – 29/08. Dữ liệu minh họa, không kết nối dữ liệu thật.']
+};
+
+function kpi(k,v,s,cls,mark){
+  return `<div class="kpi ${mark?'is-new':''}" ${mark?`data-new="${mark}"`:''}>
+    <div class="k">${k}</div><div class="v num ${cls||''}">${v}</div><div class="s">${s}</div></div>`;
+}
+
+function go(v){
+  document.getElementById('body').innerHTML = VIEWS[v]();
+  document.getElementById('h1').textContent = TITLES[v][0];
+  document.getElementById('sub').textContent = TITLES[v][1];
+  document.querySelectorAll('.side a').forEach(a=>a.classList.toggle('on', a.dataset.v===v));
+  bindChips();
+  window.scrollTo(0,0);
+}
+
+function openCase(id){
+  const c = CASES.find(x=>x.id===id);
+  const pct = c.a.v ? Math.min(100, Math.round(Math.abs(c.a.v-c.b.v)/c.a.v*100)) : 100;
+  document.getElementById('drawer').innerHTML = `
+    <div class="dw-head">
+      <button class="x" onclick="closeDrawer()">×</button>
+      <span class="dot ${c.stc}">${c.st}</span>
+      <h3>${c.name}</h3>
+      <div style="font-size:11.5px;color:var(--ink-3)"><span class="code">${c.id}</span> · ${c.src}</div>
+    </div>
+    <div class="dw-sec"><h4>HAI NGUỒN NÓI KHÁC NHAU</h4>
+      <div class="cmp">
+        <div><div class="lab">${c.a.l}</div><div class="val num">${f(c.a.v)} đ</div></div>
+        <div><div class="lab">${c.b.l}</div><div class="val num">${f(c.b.v)} đ</div></div>
+      </div>
+      <div class="bar2"><i style="width:${pct||4}%"></i></div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px">
+        <span style="color:var(--ink-3)">Chênh lệch</span>
+        <b class="num ${c.closed?'pos':'neg'}">${f(c.amt)} đ · ${c.orders} đơn</b>
+      </div>
+    </div>
+    <div class="dw-sec"><h4>BẰNG CHỨNG</h4>
+      ${c.ev.map(e=>`<div class="kv"><span>${e[0]}</span><span class="num">${e[1]}</span></div>`).join('')}
+      <div style="margin-top:12px;font-size:12.5px;color:var(--ink-2)">
+        <div style="font-size:11px;color:var(--ink-3);margin-bottom:4px">Nguyên nhân đề xuất · giả thuyết, cần người xác nhận</div>${c.why}
+      </div>
+    </div>
+    <div class="dw-sec"><h4>ĐƠN THUỘC VỤ VIỆC</h4>
+      <div style="font-size:12.5px;color:var(--ink-2)">${c.orders} đơn. Bấm để mở lại màn Đơn hàng đã lọc sẵn theo vụ việc này.</div>
+      <div style="margin-top:10px"><button class="btn" onclick="closeDrawer();go('orders')">Mở danh sách đơn</button></div>
+    </div>
+    <div class="dw-sec"><h4>DÒNG THỜI GIAN</h4>
+      <ul class="tl">${c.tl.map(t=>`<li><div>${t[0]}</div><div class="when">${t[1]}</div></li>`).join('')}</ul>
+    </div>
+    <div class="dw-act">
+      <button class="btn">Xuất CSV danh sách đơn để gửi KAM</button>
+      <button class="btn">Đính kèm ảnh chụp phản hồi của sàn</button>
+      <button class="btn">Ghi nhận phản hồi và số tiền sàn chấp nhận</button>
+      <button class="btn dark">Đóng vụ việc và ghi nhận tiền thu hồi</button>
+    </div>`;
+  document.getElementById('drawer').classList.add('on');
+  document.getElementById('scrim').classList.add('on');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('on');
+  document.getElementById('scrim').classList.remove('on');
+}
+function onSel(){
+  const s=[...document.querySelectorAll('.sel:checked')];
+  document.getElementById('selcount').textContent=s.length;
+  document.getElementById('selsum').textContent=f(s.reduce((a,b)=>a+Math.abs(+b.dataset.l),0));
+  document.getElementById('selbar').classList.toggle('on', s.length>0);
+}
+function clearSel(){ document.querySelectorAll('.sel').forEach(c=>c.checked=false); onSel(); }
+function bindChips(){
+  document.querySelectorAll('.filters').forEach(g=>g.onclick=e=>{
+    if(!e.target.classList.contains('chip'))return;
+    g.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+    e.target.setAttribute('aria-pressed','true');
+  });
+}
+document.querySelectorAll('.side a').forEach(a=>a.onclick=()=>go(a.dataset.v));
+const mk=document.getElementById('mk');
+mk.onchange=()=>document.body.classList.toggle('mark', mk.checked);
+document.body.classList.add('mark');
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+go('orders');
+</script>
+</body>
+</html>
